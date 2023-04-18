@@ -1,30 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import ErrorBoundry from '../components/ErrorBoundry';
 import './App.css';
 
-import { robots } from '../robots';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSearchField } from '../store/searchRobotsSlice';
+import { fetchRobots } from '../store/requestRobotsSlice';
 
 function App() {
-  const [robots, setRobots] = useState([]);
-  const [searchfield, setSearchfield] = useState('');
-  //const [count, setCount] = useState(0);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then((response) => response.json())
-      .then((users) => setRobots(users));
-    //console.log(count);
-  }, []);
+  const robots = useSelector((state) => {
+    return state.requestRobots.robots;
+  });
+  const searchField = useSelector((state) => {
+    return state.searchRobots.searchField;
+  });
+  //console.log(searchField);
 
   const onSearchChange = (event) => {
-    setSearchfield(event.target.value);
+    //console.log(event.target.value);
+    dispatch(setSearchField(event.target.value));
   };
 
+  useEffect(() => {
+    dispatch(fetchRobots());
+  }, [dispatch]);
+
   const filteredRobots = robots.filter((robot) => {
-    return robot.name.toLowerCase().includes(searchfield.toLowerCase());
+    return robot.name.toLowerCase().includes(searchField.toLowerCase());
   });
 
   if (!robots.length) {
